@@ -2,7 +2,7 @@
 
 #include <avr/pgmspace.h>
 #include <stdint.h>
-
+#include <avr/io.h> 
 #include <string.h>
 
 #define K 256
@@ -12,7 +12,7 @@
 
 typedef uint32_t word;
 
-void subbyte_htable(byte *a,uint8_t n)
+void subbyte_htable(byte *a_array,uint8_t n)
 {
   byte T[K][n];
   byte Tp[K][n];
@@ -30,7 +30,7 @@ void subbyte_htable(byte *a,uint8_t n)
   {
     for(k=0;k<K;k++)
       for(j=0;j<n;j++)
-	Tp[k][j]=T[k ^ a[i]][j];
+	       Tp[k][j]=T[k ^ a_array[i]][j];
 
     for(k=0;k<K;k++)
     {
@@ -39,12 +39,50 @@ void subbyte_htable(byte *a,uint8_t n)
       refresh(T[k],n);
     }
   }
-  
+asm volatile("START: " "\n\t");
+
+asm volatile(
+    //"in r0,__SREG__"  "\n\t"
+    "push r30"  "\n\t"
+    "mov r17, %[n]" "\n\t" /*Loads n into one register*/
+    "dec r17" "\n\t" /*Loads n-1 into r17*/
+    "eor r16, r16" "\n\t" /*sets r16 to 0 to act as j*/
+    "add %A[asm_array],r17" "\n\t" /*next two lines should put address of a_array[n-1] into z register r30,r31 */
+    "adc %B[asm_array],r1" "\n\t"     
+    "ld r17,%a[asm_array]" "\n\t"  /* Loads a_array[n-1] into r17 */
+
+    "L_dl1: " "\n\t"  /*Just for loop label*/
+
+    //"ld r30, lo8(%[t_array])" "\n\t"
+    //"ld r31, hi8(%[t_array])" "\n\t"
+    //"ld r30, lo8(T)" "\n\t"
+    //"ld r31, hi8(T)" "\n\t"
+    //"ld X, %[t_array]" "\n\t"
+
+    "mov r18, r17" "\n\t" /*moves r17 to a temp register*/
+    "mul r18, r16" "\n\t" /* multiply indexes to handle 2d array address - array offset*/
+    "add %A[t_array],r18" "\n\t" /*next two lines should put address of XXXXXX into z register r30,r31 */
+    "adc %B[t_array],r1" "\n\t" /* made up target address */
+    "ld r18, %a[t_array]" "\n\t" /* load the thing from array into r18*/
+
+
+    "inc r16" "\n\t" /*  decreases loop index - j*/
+    "cp r16,%[n]" "\n\t" /*  checks loop index with n*/    
+    "brne L_dl1" "\n\t" /*  checks for condiftion */
+
+    "pop r30"  "\n\t"    
+    //"out __SREG__,r0"  "\n\t"
+    :  : [n] "r" (n) , [asm_array] "e" (a_array), [t_array] "e" (T)
+    : "r16", "r17","r18"//, "r30", "r31" 
+  );
+
+asm volatile("END: " "\n\t");
+ //   : "r" (ms), "r" (delay_count)
   for(j=0;j<n;j++)
-    b[j]=T[a[n-1]][j];
+    b[j]=T[a_array[n-1]][j];
 
   refresh(b,n);
-  for(j=0;j<n;j++) a[j]=b[j];
+  for(j=0;j<n;j++) a_array[j]=b[j];
 }
 
 void subbyte_htable_low_mem(byte *a,uint8_t n)
