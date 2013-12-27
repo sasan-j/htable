@@ -4,10 +4,13 @@
 #include <stdint.h>
 #include <avr/io.h> 
 #include <string.h>
+#include <stdlib.h>
+
 
 #define K 256
 //a divider for dividing process to smaller part though using lower memory
 #define DIV 4
+
 
 
 typedef uint32_t word;
@@ -17,10 +20,11 @@ void subbyte_htable(byte *a_array,uint8_t n)
   byte T[K][n];
   byte Tp[K][n];
   byte b[n];
+  //b=(byte*) malloc(n*sizeof(byte));
+
 
   uint8_t i,j;
   uint16_t k;
-  
   for(k=0;k<K;k++){
     //share(sbox[k],T[k],n);
     share(pgm_read_byte(&(sbox[k])),T[k],n);
@@ -39,47 +43,71 @@ void subbyte_htable(byte *a_array,uint8_t n)
       refresh(T[k],n);
     }
   }
+
+  /*
+  asm volatile("END1: " "\n\t");
+
+
+  for(j=0;j<n;j++)
+    b[j]=T[a_array[n-1]][j];
+
+*/
+//TODO: remove this in feature
+//needed temporary 
+b[0]=0x00;
+
 asm volatile("START: " "\n\t");
 
+
+/*
+  asm volatile("END1: " "\n\t");
+  for(j=0;j<n;j++)
+    b[j]=T[a_array[n-1]][j];
+*/
 asm volatile(
-    //"in r0,__SREG__"  "\n\t"
-    "push r30"  "\n\t"
+
     "mov r17, %[n]" "\n\t" /*Loads n into one register*/
     "dec r17" "\n\t" /*Loads n-1 into r17*/
     "eor r16, r16" "\n\t" /*sets r16 to 0 to act as j*/
     "add %A[asm_array],r17" "\n\t" /*next two lines should put address of a_array[n-1] into z register r30,r31 */
-    "adc %B[asm_array],r1" "\n\t"     
+    "adc %B[asm_array],r16" "\n\t" //because im sure that r16 is zero 
     "ld r17,%a[asm_array]" "\n\t"  /* Loads a_array[n-1] into r17 */
+    /* now %a[asm_array] is free */
+
+    //load b[] base address into Z
+    "ldd %A[asm_array], Y+1" "\n\t"
+    "ldd %B[asm_array], Y+2" "\n\t" 
+    //"ldi %A[asm_array], lo8(b)" "\n\t"
+    //"ldi %B[asm_array], hi8(b)" "\n\t" 
+    /*now b is ready to roll inside %a[asm_array]*/
+    //"mov r18, r17" "\n\t" /*moves r17 to a temp register*/
+    "mul r17, %[n]" "\n\t" /* multiply indexes to handle 2d array address - array offset*/
+    //"movw %A[t_array], r0" "\n\t" /* add array offset*/
+    "add %A[t_array], r0" "\n\t"
+    "adc %B[t_array], r1" "\n\t"
+    "eor r1,r1" "\n\t" // to turn it back to zero
+//    "add r18, r16" "\n\t" /* add array offset*/
+  //  "add %A[t_array],r18" "\n\t" /*next two lines should put address of XXXXXX into z register r30,r31 */
+  //  "adc %B[t_array],r1" "\n\t" /* made up target address */
 
     "L_dl1: " "\n\t"  /*Just for loop label*/
 
-    //"ld r30, lo8(%[t_array])" "\n\t"
-    //"ld r31, hi8(%[t_array])" "\n\t"
-    //"ld r30, lo8(T)" "\n\t"
-    //"ld r31, hi8(T)" "\n\t"
-    //"ld X, %[t_array]" "\n\t"
-
-    "mov r18, r17" "\n\t" /*moves r17 to a temp register*/
-    "mul r18, r16" "\n\t" /* multiply indexes to handle 2d array address - array offset*/
-    "add %A[t_array],r18" "\n\t" /*next two lines should put address of XXXXXX into z register r30,r31 */
-    "adc %B[t_array],r1" "\n\t" /* made up target address */
-    "ld r18, %a[t_array]" "\n\t" /* load the thing from array into r18*/
+    "ld r18, %a[t_array]+" "\n\t" /* load the thing from array into r18*/
+    "st %a[asm_array]+, r18" "\n\t"  /*put the thing into b array*/
 
 
     "inc r16" "\n\t" /*  decreases loop index - j*/
     "cp r16,%[n]" "\n\t" /*  checks loop index with n*/    
     "brne L_dl1" "\n\t" /*  checks for condiftion */
 
-    "pop r30"  "\n\t"    
-    //"out __SREG__,r0"  "\n\t"
     :  : [n] "r" (n) , [asm_array] "e" (a_array), [t_array] "e" (T)
-    : "r16", "r17","r18"//, "r30", "r31" 
+    : "r16", "r17","r18","r19"//, "r30", "r31" 
   );
 
 asm volatile("END: " "\n\t");
  //   : "r" (ms), "r" (delay_count)
-  for(j=0;j<n;j++)
-    b[j]=T[a_array[n-1]][j];
+
+
 
   refresh(b,n);
   for(j=0;j<n;j++) a_array[j]=b[j];

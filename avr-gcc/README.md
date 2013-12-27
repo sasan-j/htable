@@ -36,3 +36,7 @@ out=3925841d02dc09fbdc118597196a0b32
 SystemClock::Endless stopped
 number of cpu cycles simulated: 110600469
 
+
+After writing part of a function in assembly! :)
+number of cpu cycles simulated: 110593589
+
