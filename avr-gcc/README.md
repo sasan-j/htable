@@ -46,5 +46,9 @@ number of cpu cycles simulated: 110223221
 After writing byte xorop(byte a[],uint8_t n) from share.c in assembly
 number of cpu cycles simulated: 110223173
 
+Fixed a bug in Xorshift random number generators variable size declaration which caused a huge performance issue
+number of cpu cycles simulated: 34656381
+
+
 
 
