@@ -1,7 +1,9 @@
+#simulavr -d atmega128 -f runaes.elf -W 0x20,- -R 0x22,- -T exit
+
 #microcontroller type for example atmega8
 mcu = atmega128
 
-AESOBJ = aes.o aes_rp.o share.o aes_share.o aes_htable.o runaes.o common.o
+AESOBJ = aes.o aes_rp.o share.o aes_share.o aes_htable.o runaes.o common.o share_asm.S
 #AESOBJ_norm = aes.o aes_rp.o share.o aes_share.o aes_htable.o runaes_normal.o common.o
 
 

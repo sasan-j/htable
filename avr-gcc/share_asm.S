@@ -1,8 +1,10 @@
-#include "share.h"
+//#include "share.h"
 
+#include <avr/io.h>       //required for register definitions
+/*
 static uint64_t x=123456789, y=362436069, z=521288629;
 
-uint64_t xorshf96(void) {
+uint64_t xorshf96(void) {   
   uint64_t t;
   x ^= x << 16;
   x ^= x >> 5;
@@ -25,6 +27,24 @@ void refresh(byte a[],uint8_t n)
     a[i]=a[i] ^ tmp;
   }
 }
+*/
+
+.extern x_byte 
+.extern a_array 
+.extern n 
+
+
+.global share
+share: ;r24,r25 - r22,r23 - r20,r21
+    movw  r30, r22 
+    st  Z+, r24  ; a[0]=x;
+    eor r1,r1
+    dec r20
+L_share_asm:    
+    st  Z+, r1
+    dec r20
+    brne L_share_asm
+  ret
 
 /*
 void share(byte x,byte a[],uint8_t n)
@@ -36,6 +56,8 @@ void share(byte x,byte a[],uint8_t n)
 }
 */
 
+
+/*
 byte xorop(byte a[],uint8_t n)
 {
   uint8_t i;
@@ -53,3 +75,4 @@ byte decode(byte a[],uint8_t n)
   return xorop(a,n);
 }
 
+*/

@@ -44,21 +44,10 @@ void subbyte_htable(byte *a_array,uint8_t n)
     }
   }
 
-  /*
-  asm volatile("END1: " "\n\t");
-
-
-  for(j=0;j<n;j++)
-    b[j]=T[a_array[n-1]][j];
-
-*/
 //TODO: remove this in feature
 //needed temporary 
 b[0]=0x00;
-
 asm volatile("START: " "\n\t");
-
-
 /*
   asm volatile("END1: " "\n\t");
   for(j=0;j<n;j++)
