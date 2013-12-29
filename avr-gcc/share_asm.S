@@ -57,6 +57,19 @@ void share(byte x,byte a[],uint8_t n)
 */
 
 
+.global xorop
+xorop:
+  movw  r30, r24 ; this will a[] address into Z
+  eor   r24, r24 ; to make r24 which is our (r) zero
+                 ; r24 should be output because it will be returned
+For_Loop:
+  ld    r21, Z+  ; loads a[r21] r21 is a temporal variable representing loop index
+  eor   r24, r21
+  dec   r22      ; r22 is (n) 
+  brne For_Loop
+  ret 
+
+
 /*
 byte xorop(byte a[],uint8_t n)
 {

@@ -15,6 +15,7 @@ uint64_t xorshf96(void) {
   return z;
 }
 
+
 void refresh(byte a[],uint8_t n)
 {
   uint8_t i;
@@ -36,6 +37,7 @@ void share(byte x,byte a[],uint8_t n)
 }
 */
 
+/*
 byte xorop(byte a[],uint8_t n)
 {
   uint8_t i;
@@ -44,6 +46,7 @@ byte xorop(byte a[],uint8_t n)
     r^=a[i];
   return r;
 }
+*/
 
 byte decode(byte a[],uint8_t n)
 {

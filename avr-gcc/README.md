@@ -40,3 +40,11 @@ number of cpu cycles simulated: 110600469
 After writing part of a function in assembly! :)
 number of cpu cycles simulated: 110593589
 
+After writing void share(byte x,byte a[],uint8_t n) from share.c in assembly
+number of cpu cycles simulated: 110223221
+
+After writing byte xorop(byte a[],uint8_t n) from share.c in assembly
+number of cpu cycles simulated: 110223173
+
+
+
