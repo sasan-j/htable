@@ -1,7 +1,8 @@
 #include "share.h"
 
-static uint32_t x=123456789, y=362436069, z=521288629;
+//static uint32_t x=123456789, y=362436069, z=521288629;
 
+/*
 uint32_t xorshf96(void) {
   uint32_t t;
   x ^= x << 16;
@@ -15,13 +16,16 @@ uint32_t xorshf96(void) {
   return z;
 }
 
-
+*/
 void refresh(byte a[],uint8_t n)
 {
   uint8_t i;
   for(i=1;i<n;i++)
   {
     byte tmp=(byte)xorshf96(); //rand();
+    //xorsh96 test statement
+    //printf("xorsh96=%d\n",tmp);
+
     a[0]=a[0] ^ tmp;
     a[i]=a[i] ^ tmp;
   }

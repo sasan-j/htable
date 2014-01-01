@@ -23,6 +23,11 @@ Notes
 
 * We do not claim that in practice the implementation would be secure against a t-th order attack. Namely the implementation is only provided for illustrative purpose, and timing comparisons. Obtaining a secure implementation would require to carefully examine the assembly code. In particular one should make sure that no two shares of the same variable are stored in the same register.
 
+Disassembly:
+avr-objdump -D runaes.elf > runaes.elf.disasseble.S
+
+Simulation command (needs SimulAVR 1.1dev)
+simulavr -d atmega128 -f runaes.elf -W 0x20,- -R 0x22,- -T exit
 
 Outputs w/o optimization:
 Shares=3
@@ -46,8 +51,13 @@ number of cpu cycles simulated: 110223221
 After writing byte xorop(byte a[],uint8_t n) from share.c in assembly
 number of cpu cycles simulated: 110223173
 
-Fixed a bug in Xorshift random number generators variable size declaration which caused a huge performance issue
+Fixed a bug in Xorshift random number generators variable size declaration which caused huge performance issue
 number of cpu cycles simulated: 34656381
+
+After writing Xorshift in assembly (no improvements :-( but when we finish writing all the code in assembly we would see more enhancements, because mixing C and assembly enforces some overhead)
+number of cpu cycles simulated: 35892473
+
+
 
 
 
