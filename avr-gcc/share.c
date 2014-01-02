@@ -54,7 +54,7 @@ byte xorop(byte a[],uint8_t n)
   return r;
 }
 */
-
+/*
 byte decode(byte a[],uint8_t n)
 {
   uint8_t i;
@@ -62,4 +62,4 @@ byte decode(byte a[],uint8_t n)
     refresh(a,n);
   return xorop(a,n);
 }
-
+*/

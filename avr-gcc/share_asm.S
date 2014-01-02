@@ -287,7 +287,47 @@ byte xorop(byte a[],uint8_t n)
     r^=a[i];
   return r;
 }
+*/
+.global decode
+decode:
 
+    push  r16
+    push  r17
+    push  r28
+    push  r29
+    ;put address of a[] into Y
+    movw  r28, r24
+    ;put n into r16
+    mov r16, r22
+    ;put another copy of n into r17
+    mov r17, r22
+    dec r17
+Decode_For_Loop:
+    ;prepare input parameters for xorop
+    ; moves n into r22
+    mov r22, r16
+    ; moves address of a[] into r24
+    movw  r24, r28
+
+    rcall  refresh  ; 0x45c0 <refresh>
+
+    dec   r17      ; r17 is (n) 
+    brne Decode_For_Loop
+   
+    ;prepare input parameters for xorop
+    ; moves n into r22
+    mov r22, r16
+    ; moves address of a[] into r24
+    movw  r24, r28
+
+    pop r29
+    pop r28
+    pop r17
+    pop r16
+
+    rjmp xorop
+
+/*
 byte decode(byte a[],uint8_t n)
 {
   uint8_t i;

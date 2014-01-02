@@ -60,6 +60,9 @@ number of cpu cycles simulated: 35892473
 After writing "void refresh(byte a[],uint8_t n)" from share.c in assembly
 number of cpu cycles simulated: 25027533
 
+After writing "byte decode(byte a[],uint8_t n)" from share.c in assembly
+number of cpu cycles simulated: 25023926
+
 
 
 

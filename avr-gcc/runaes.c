@@ -41,6 +41,7 @@ int main()
   for(i=0;i<16;i++) in[i]=pgm_read_byte(&(inex[i]));
 
   uint8_t dt,base;
+
 /*
   printf("Without countermeasure, plain: ");
   dt=run_aes(in,out,key,nt);
@@ -48,27 +49,31 @@ int main()
   check_ciphertext(out,outex,16);
   report_time(dt,nt,base);
   printMesSRAM("out",out);
-
+*/
+/*
   printf("Without countermeasure, RP: ");
   runalgo(&aes_rp,in,out,key,outex,16,nt,base);
   printMesSRAM("out",out);
+*/
 
-  */
   for(n=3;n<=3;n+=2)
   {
-    printf("n=%d\n",n);
     /*
+    printf("n=%d\n",n);
+    
     printf("  With RP countermeasure: ");
     dt=run_aes_share(in,out,key,n,&subbyte_rp_share,nt);
     report_time(dt,nt,base);
     check_ciphertext(out,outex,16);
     printMesSRAM("out",out);
     */
+    ///*
     printf("  With randomized table : ");
     dt=run_aes_share(in,out,key,n,&subbyte_htable,nt);
     report_time(dt,nt,base);
     check_ciphertext(out,outex,16);
     printMesSRAM("out",out);
+    //*/
   }
 
 }
