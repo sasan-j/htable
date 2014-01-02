@@ -31,6 +31,11 @@ xyz:
 
 .text
 
+
+/**
+* it uses
+*
+**/
 .global xorshf96
 xorshf96:
 
@@ -121,6 +126,99 @@ RepeatRotate:
   sts  (xyz+11), r25
 
   ret
+
+
+
+.global refresh
+refresh:
+/*
+    push  r18
+    push  r19
+    push  r20
+    push  r21
+    ;push  r22
+    ;push  r23
+    ;push  r24
+    ;push  r25
+    push  r26
+    push  r27
+    push  r30
+    push  r31
+*/
+    movw  r30, r24  ;copy a address into Z
+    movw  r26, r24  ;copy a address into X
+    mov r18,r22
+    adiw r30,1
+    ;n is in r18
+    subi r18, 0x2 ; n-2   too run the loop from 1 to x<n
+    ;load a[0] into r19
+    ld r19, X; or Z
+refresh_for:
+
+    ;calling function xorsh96
+    
+    
+    push  r18
+    push  r19
+    ;push  r20
+    ;push  r21
+    ;push  r22
+    ;push  r23
+    ;push  r24
+    ;push  r25
+    push  r26
+    push  r27
+    push  r30
+    push  r31
+
+    rcall xorshf96
+    
+    pop   r31
+    pop   r30
+    pop   r27
+    pop   r26
+    ;pop   r25
+    ;pop   r24    
+    ;pop   r23
+    ;pop   r22
+    ;pop   r21
+    ;pop   r20
+    pop   r19
+    pop   r18
+    
+
+
+
+    ;a[0]=a[0] ^ tmp;
+    eor r19, r22 ;assume r22 is tmp 
+    ; next 3 are
+    ; a[i]=a[i] ^ tmp;
+
+    ld  r23, Z
+    eor r23, r22
+    st  Z+,   r23
+
+    dec r18
+    brne refresh_for
+
+    ;save r21 into its place (a[0])
+    st X, r19
+/*
+    pop   r31
+    pop   r30
+    pop   r27
+    pop   r26
+    ;pop   r25
+    ;pop   r24    
+    ;pop   r23
+    ;pop   r22
+    pop   r21
+    pop   r20
+    pop   r19
+    pop   r18
+*/
+  ret
+
 
 /*
 void refresh(byte a[],uint8_t n)

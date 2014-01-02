@@ -57,7 +57,8 @@ number of cpu cycles simulated: 34656381
 After writing Xorshift in assembly (no improvements :-( but when we finish writing all the code in assembly we would see more enhancements, because mixing C and assembly enforces some overhead)
 number of cpu cycles simulated: 35892473
 
-
+After writing "void refresh(byte a[],uint8_t n)" from share.c in assembly
+number of cpu cycles simulated: 25027533
 
 
 

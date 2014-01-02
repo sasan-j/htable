@@ -17,6 +17,8 @@ uint32_t xorshf96(void) {
 }
 
 */
+
+/*
 void refresh(byte a[],uint8_t n)
 {
   uint8_t i;
@@ -30,6 +32,7 @@ void refresh(byte a[],uint8_t n)
     a[i]=a[i] ^ tmp;
   }
 }
+*/
 
 /*
 void share(byte x,byte a[],uint8_t n)
