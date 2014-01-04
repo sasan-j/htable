@@ -3,7 +3,7 @@
 #microcontroller type for example atmega8
 mcu = atmega128
 
-AESOBJ = aes.o aes_rp.o share.o aes_share.o aes_htable.o runaes.o common.o share_asm.S
+AESOBJ = aes.o aes_rp.o share.o aes_share.o aes_htable.o runaes.o common.o share_asm.S aes_htable_asm.S
 #AESOBJ_norm = aes.o aes_rp.o share.o aes_share.o aes_htable.o runaes_normal.o common.o
 
 
