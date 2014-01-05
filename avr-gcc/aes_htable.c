@@ -29,13 +29,71 @@ void subbyte_htable(byte *a_array,uint8_t n)
   arrayAddresses[2]=&Tp;
   arrayAddresses[3]=&b;
 
-  uint8_t i,j;
+  uint8_t i,j,l,m;
   uint16_t k;
-  for(k=0;k<K;k++){
-    //share(sbox[k],T[k],n);
-    share(pgm_read_byte(&(sbox[k])),T[k],n);
-  }
-  
+
+  asm volatile(
+
+    "eor r1, r1" "\n\t"
+    //kk will store T[] base address
+    "ldd %A[kk],Z+2" "\n\t"
+    "ldd %B[kk],Z+3" "\n\t"
+
+    //we move X to Z for further use in loop (lpm)
+    "movw r30,r26" "\n\t"
+
+    //we move kk to X for further use in loop
+    "movw r26,%[kk]" "\n\t"
+
+    //we initialize our loop index with zero
+    "ldi %[ii],0x00" "\n\t"
+
+
+    //we use j as zero tmp
+    //"ldi %[jj],0x00" "\n\t"
+
+
+    "Loop_111:" "\n\t"
+
+    //reading sbox value
+    "lpm r24, Z+" "\n\t"
+    "ldi r25,0x00" "\n\t"
+
+    //reading T[i]
+    "movw r22, r26" "\n\t"
+
+    //move n to its place!
+    "mov r20, %[n]" "\n\t"
+    "mov r21, __zero_reg__" "\n\t"
+
+
+    "push r30" "\n\t"
+    "push r31" "\n\t"
+    "push r26" "\n\t"
+    "push r27" "\n\t"
+    "call share" "\n\t"
+    "pop r27" "\n\t"
+    "pop r26" "\n\t"
+    "pop r31" "\n\t"
+    "pop r30" "\n\t"
+
+
+    "eor r1, r1" "\n\t"
+    "add r26, %[n]" "\n\t"
+    "adc r27, r1" "\n\t"
+
+
+    "inc %[ii]" "\n\t"    
+    "brne Loop_111" "\n\t"
+
+    : [ii] "=a" (i), [kk] "=a" (k)
+    : [n] "r" (n), [add_array] "z" (arrayAddresses)
+    , [sbox_address] "x" (&sbox)
+    : "r20", "r21","r22", "r23","r24","r25"   
+  );
+ 
+
+
   for(i=0;i<(n-1);i++)
   {
     for(k=0;k<K;k++)
@@ -45,34 +103,22 @@ void subbyte_htable(byte *a_array,uint8_t n)
     for(k=0;k<K;k++)
     {
       for(j=0;j<n;j++) 
-  T[k][j]=Tp[k][j];
+        T[k][j]=Tp[k][j];
       refresh(T[k],n);
     }
   }
 
-/*
-  asm volatile("END1: " "\n\t");
-  for(j=0;j<n;j++)
-    b[j]=T[a_array[n-1]][j];
-*/
-
-__asm__(
+asm volatile(
 
     "mov r17, %[n]" "\n\t" ///*Loads n into one register*/
     "dec r17" "\n\t" ////Loads n-1 into r17*/
     "eor r16, r16" "\n\t" ///*sets r16 to 0 to act as j*/
     "ld r26, Z" "\n\t"
     "ldd r27, Z+1" "\n\t"
-    //"add %A[asm_array],r17" "\n\t" ///*next two lines should put address of a_array[n-1] into z register r30,r31 */
-    //"adc %B[asm_array],r16" "\n\t" //because im sure that r16 is zero 
     "add r26,r17" "\n\t" ///*next two lines should put address of a_array[n-1] into z register r30,r31 */
     "adc r27,r16" "\n\t" //because im sure that r16 is zero 
     "ld r17,X" "\n\t" // /* Loads a_array[n-1] into r17 */
-    ///* now %a[asm_array] is free */
 
-
-    //"ldd %A[asm_array], Y+1" "\n\t"
-    //"ldd %B[asm_array], Y+2" "\n\t" 
     //load T[] base address into x
     "ldd r26, Z+2" "\n\t"
     "ldd r27, Z+3" "\n\t"
@@ -122,7 +168,6 @@ __asm__(
     "pop r30" "\n\t"
 
 
-    //"movw r30,r4" "\n\t"
     //load b[] base address into x
     "ldd r26, Z+6" "\n\t"
     "ldd r27, Z+7" "\n\t"
@@ -151,13 +196,52 @@ __asm__(
     : : [n] "r" (n), [add_array] "z" (arrayAddresses)
     : "r4", "r5","r16", "r17","r18","r19"
   );
-
-
-
-  //refresh(b,n);
-
-  //for(j=0;j<n;j++) a_array[j]=b[j];
 }
+
+/*
+void subbyte_htable(byte *a_array,uint8_t n)
+{
+  byte T[K][n];
+  byte Tp[K][n];
+  byte b[n];
+  //b=(byte*) malloc(n*sizeof(byte));
+  uint16_t arrayAddresses[4];
+
+  arrayAddresses[0]=a_array;
+  arrayAddresses[1]=&T;
+  arrayAddresses[2]=&Tp;
+  arrayAddresses[3]=&b;
+
+  uint8_t i,j;
+  uint16_t k;
+  for(k=0;k<K;k++){
+    //share(sbox[k],T[k],n);
+    share(pgm_read_byte(&(sbox[k])),T[k],n);
+  }
+  
+  for(i=0;i<(n-1);i++)
+  {
+    for(k=0;k<K;k++)
+      for(j=0;j<n;j++)
+         Tp[k][j]=T[k ^ a_array[i]][j];
+
+    for(k=0;k<K;k++)
+    {
+      for(j=0;j<n;j++) 
+  T[k][j]=Tp[k][j];
+      refresh(T[k],n);
+    }
+  }
+
+  asm volatile("END1: " "\n\t");
+  for(j=0;j<n;j++)
+    b[j]=T[a_array[n-1]][j];
+
+  refresh(b,n);
+
+  for(j=0;j<n;j++) a_array[j]=b[j];
+}
+*/
 
 void subbyte_htable_low_mem(byte *a,uint8_t n)
 {
