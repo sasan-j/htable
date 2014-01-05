@@ -69,16 +69,11 @@ void subbyte_htable(byte *a_array,uint8_t n)
 
     "push r30" "\n\t"
     "push r31" "\n\t"
-    "push r26" "\n\t"
-    "push r27" "\n\t"
     "call share" "\n\t"
-    "pop r27" "\n\t"
-    "pop r26" "\n\t"
     "pop r31" "\n\t"
     "pop r30" "\n\t"
 
 
-    "eor r1, r1" "\n\t"
     "add r26, %[n]" "\n\t"
     "adc r27, r1" "\n\t"
 
@@ -96,10 +91,94 @@ void subbyte_htable(byte *a_array,uint8_t n)
 
   for(i=0;i<(n-1);i++)
   {
+    /*
+    //ii as i
+    //jj as j
+    //ll as k
+    asm volatile(
+
+      //we move a_array address to X
+      "ld r26,Z" "\n\t"
+      "ldd r27,Z+1" "\n\t"
+
+      //add offset for a_array[i]
+      "add r26,%[ii]" "\n\t"
+      "adc r27,__zero_reg__" "\n\t"
+      //loads a_array[i] into r16
+      "ld r16,Z" "\n\t"
+
+      //we move T[] address to r14-r15
+      "ldd r14,Z+2" "\n\t"
+      "ldd r15,Z+3" "\n\t"
+
+      //we move Tp[] address to r12-r13
+      "ldd r12,Z+4" "\n\t"
+      "ldd r13,Z+5" "\n\t"
+
+      //we initialize our loop index with zero
+      "ldi %[ll],0x00" "\n\t"
+      ///////////////////////////////////////////
+  "Loop_0to255:" "\n\t"
+
+      // r17 gonna be k^a_array[i]
+      "mov r17,%[ll]" "\n\t"
+      "eor r17,r16" "\n\t"
+      //we initialize loop index for inner loop
+      "ldi %[jj],0x00" "\n\t"
+      /////////////////////////////////////
+  "Loop_j0toN:" "\n\t"
+
+      //reading T[i]
+      //(b*n)
+      "mul r17, %[n]" "\n\t" 
+      //(b*n)+j
+      "add r0, %[jj]" "\n\t"      
+      "eor r2, r2" "\n\t"
+      "adc r1, r2" "\n\t" 
+      //&T+(b*n)+j
+      "add r0, r14" "\n\t"      
+      "eor r2, r2" "\n\t"
+      "adc r1, r15" "\n\t" 
+
+      //mov &T+(b*n)+j to X
+      "movw r26, r0" "\n\t"
+      //T[k ^ a_array[i]][j] goes to r0
+      "ld  r18,  X" "\n\t"
+
+      //(l*n)
+      "mul %[ll], %[n]" "\n\t" 
+      //(l*n)+j
+      "add r0, %[jj]" "\n\t"      
+      //"eor r2, r2" "\n\t"
+      "adc r1, r2" "\n\t" 
+      //&Tp+(l*n)+j
+      "add r0, r12" "\n\t"      
+      "eor r2, r2" "\n\t"
+      "adc r1, r13" "\n\t"
+
+      //mov &Tp+(l*n)+j to X
+      "movw r26, r0" "\n\t"
+      //T[k ^ a_array[i]][j] goes to r0
+      "st  X,  r18" "\n\t"
+      //inner loop
+      "inc %[jj]" "\n\t"
+      "cp %[jj],%[n]" "\n\t"   
+      "brne Loop_j0toN" "\n\t"
+
+      //outer loop
+      "inc %[ll]" "\n\t"    
+      "brne Loop_0to255" "\n\t"
+
+      : [ii] "=a" (i), [tt] "=a" (k), [jj] "=a" (j), [ll] "=a" (l)
+      : [n] "r" (n), [add_array] "z" (arrayAddresses)  
+      : "r12", "r13","r14","r15", "r16","r17","r18"
+    );*/
+
+    
     for(k=0;k<K;k++)
       for(j=0;j<n;j++)
          Tp[k][j]=T[k ^ a_array[i]][j];
-
+    
     for(k=0;k<K;k++)
     {
       for(j=0;j<n;j++) 
